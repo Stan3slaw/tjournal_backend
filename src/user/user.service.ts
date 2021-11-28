@@ -22,7 +22,7 @@ export class UserService {
   }
 
   async findById(id: number) {
-    return `This action returns a #${id} user`;
+    return await this.usersRepository.findOne(id);
   }
 
   async findByCond(cond: LoginUserDto) {

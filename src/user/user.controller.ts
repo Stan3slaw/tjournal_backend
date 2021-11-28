@@ -5,7 +5,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   UsePipes,
   ValidationPipe,
   UseGuards,
@@ -35,8 +34,8 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getProfile(@Request() req) {
-    return req.user;
+  async getProfile(@Request() req) {
+    return await this.userService.findById(req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
