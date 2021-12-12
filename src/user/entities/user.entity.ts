@@ -1,3 +1,4 @@
+import { CommentEntity } from 'src/comment/entities/comment.entity';
 import { PostEntity } from 'src/post/entities/post.entity';
 import {
   Column,
@@ -21,6 +22,11 @@ export class UserEntity {
 
   @Column({ nullable: true })
   password?: string;
+
+  @OneToMany(() => CommentEntity, comment => comment.user, {
+    nullable: true,
+  })
+  comments: CommentEntity[];
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

@@ -25,10 +25,10 @@ export class CommentEntity {
   updatedAt: Date;
 
   @ManyToOne(() => UserEntity, { nullable: false })
-  @JoinColumn({ name: 'userId' })
+  // @JoinColumn({ name: 'userId' })
   user: UserEntity;
 
   @ManyToOne(() => PostEntity, { nullable: false })
-  @JoinColumn({ name: 'postId' })
+  // @JoinColumn({ name: 'postId' })
   post: PostEntity;
 }

@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CommentEntity } from 'src/comment/entities/comment.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
 import { LoginUserDto } from './dto/loginUser.dto';
@@ -18,11 +19,24 @@ export class UserService {
   }
 
   async findAll() {
-    return await this.usersRepository.find();
+    const arr = await this.usersRepository
+      .createQueryBuilder('u')
+      .leftJoinAndMapMany(
+        'u.comments',
+        CommentEntity,
+        'comment',
+        'comment.userId = u.id',
+      )
+      .loadRelationCountAndMap('u.commentsCount', 'u.comments', 'comments')
+      .getMany();
+    return arr.map(obj => {
+      delete obj.comments;
+      return obj;
+    });
   }
 
-  async findById(id: number) {
-    return await this.usersRepository.findOne(id);
+  findById(id: number) {
+    return this.usersRepository.findOne(id);
   }
 
   async findByCond(cond: LoginUserDto) {

@@ -1,5 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PostEntity } from 'src/post/entities/post.entity';
+import { UserEntity } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateCommentDto } from './dto/createComment.dto';
 import { UpdateCommentDto } from './dto/updateComment.dto';
@@ -10,17 +12,32 @@ export class CommentService {
   constructor(
     @InjectRepository(CommentEntity)
     private readonly commentRepository: Repository<CommentEntity>,
+    @InjectRepository(PostEntity)
+    private readonly postRepository: Repository<PostEntity>,
   ) {}
-  async create(createCommentDto: CreateCommentDto) {
-    return await this.commentRepository.save({
+  async create(createCommentDto: CreateCommentDto, currentUserId: number) {
+    const comment = await this.commentRepository.save({
       text: createCommentDto.text,
       post: { id: createCommentDto.postId },
-      user: { id: 1 },
+      user: { id: currentUserId },
     });
+    return this.commentRepository.findOne(
+      { id: comment.id },
+      { relations: ['user'] },
+    );
   }
 
-  async findAll() {
-    return await this.commentRepository.find();
+  async findAll(postId: number) {
+    const comments = await this.commentRepository.find({
+      [postId ? 'where' : '']: {
+        post: { id: postId },
+      },
+      relations: ['user', 'post'],
+    });
+    return comments.map(obj => ({
+      ...obj,
+      post: { id: obj.post.id, title: obj.post.title },
+    }));
   }
 
   async findOne(id: number) {
